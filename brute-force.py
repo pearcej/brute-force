@@ -6,18 +6,36 @@
 
 
 import random # possibly needed by main()
-import sys # needed by test_it()
+
+from inspect import getframeinfo, stack
+
+# Function for unit testing
+def unittest(did_pass):
+    """
+    Print the result of a unit test.
+    :param did_pass: a boolean representing the test
+    :return: None
+    """
+
+    caller = getframeinfo(stack()[1][0])
+    linenum = caller.lineno
+    if did_pass:
+        msg = "Test at line {0} ok.".format(linenum)
+    else:
+        msg = ("Test at line {0} FAILED.".format(linenum))
+    print(msg)
 
 class BruteForce:
     """ The BruteForce class illustrates some computations related to the brute force solution method
     applied to the traveling salesman problem"""
 
     def __init__(self, n=3, rate = 0.00000000000000000033):
-        '''Constructor instanciates an object containing the number of cities
-        uses an optional parameter rate is the seconds needed by 1 computation
+        '''Constructor instantiates an object containing the number of cities
+        uses an optional parameter, rate, which is the seconds needed by 1 computation
         whose default value is approximately the time it takes light to cross
-        the width of the smallest atom 0.00000000000000000033 seconds
+        the width of the smallest atom: 0.00000000000000000033 seconds.
         Calls two helper methods'''
+        
         self.n = int(n) # number of cities INCLUDING the starting and ending place (home)
         self.rate = float(rate)
 
@@ -40,44 +58,37 @@ class BruteForce:
         '''Returns the processing time in years needed to test all possible routes given self.rate
         as a list of [years, days, hours, minutes, seconds].'''
 
-        self.totalseconds=float(self.num_routes)*float(self.rate)
-        amountleft=self.totalseconds
+        self.totalseconds = float(self.num_routes)*float(self.rate)
+        amountleft = self.totalseconds
 
         for timeunit in [365.242*24*60*60, 24*60*60, 60*60, 60]: # Computes years, days, hours, and minutes
-            tempamount=amountleft
-            amountleft=amountleft//timeunit # forces years, days, and minutes to be integer
+            tempamount = amountleft
+            amountleft = amountleft // timeunit # forces years, days, and minutes to be integer
             self.timelist.append(amountleft)
-            amountleft=tempamount%timeunit
+            amountleft = tempamount%timeunit
 
         self.timelist.append(amountleft) # Allows seconds to be fractional
         # print(self.timelist) # for debugging
         return (self.timelist)
 
-def testit(did_pass):
-    """ Print the result of a unit test. """
-    linenum = sys._getframe(1).f_lineno # Get the caller's line number.
-    if did_pass:
-        msg = "Test at line {0} ok.".format(linenum)
-    else:
-        msg = ("Test at line {0} FAILED.".format(linenum))
-    print(msg)
-
 def bruteforce_test_suite():
     '''The test_suite function utilizes the testit() function,
     and is designed to test the bruteforce'''
-    epsilon=0.000000000001 # We use this to deal with floating point round-off error
+    
+    epsilon = 0.000000000001 # We use this to deal with floating point round-off error
     print("\nRunning bruteforce_test_suite()).")
+    
     tsp1 = BruteForce(11, 0.05) # visit 11 cities using a widget speed
-    testit(tsp1.number_routes()== 3628800) # because 10! = 3628800
-    testit(tsp1.timelist==[0, 2, 2, 24.0, 0]) # This is [0 years, 2 days, 2 hours, 24 minutes, 0 seconds]
+    unittest(tsp1.number_routes()== 3628800) # because 10! = 3628800
+    unittest(tsp1.timelist==[0, 2, 2, 24.0, 0]) # This is [0 years, 2 days, 2 hours, 24 minutes, 0 seconds]
 
     tsp2 = BruteForce(7, 0.05) # visit 11 cities using a widget speed
-    testit(tsp2.number_routes()== 720) # because 10! = 3628800
-    testit(tsp2.timelist==[0, 0, 0, 0, 36.0]) # This is [0 years, 0 days, 0 hours, 0 minutes, 36 seconds]
+    unittest(tsp2.number_routes()== 720) # because 10! = 3628800
+    unittest(tsp2.timelist==[0, 0, 0, 0, 36.0]) # This is [0 years, 0 days, 0 hours, 0 minutes, 36 seconds]
 
     tsp3 = BruteForce(49, 0.00000000000000000033) # visit 49 cities using the time it takes light to cross the width of the smallest atom
-    testit(tsp3.number_routes()== 12413915592536072670862289047373375038521486354677760000000000)
-    testit(tsp3.timelist==[1.2981601498106503e+35, 311.0, 5.0, 15.0, 5.955653518438339])
+    unittest(tsp3.number_routes()== 12413915592536072670862289047373375038521486354677760000000000)
+    unittest(tsp3.timelist==[1.2981601498106503e+35, 311.0, 5.0, 15.0, 5.955653518438339])
 
     print("Run of bruteforce_test_suite() complete.")
 
